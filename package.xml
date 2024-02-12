@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./schema.xsd">
+    <meta>
+		<name>my_app</name>
+		<description>My application in minq</description>
+		<version>v0.0.1</version>
+	</meta>
+	<minq>
+		<file>index.mq</file>
+	</minq>
+	<scripts>
+		<script name="start">minq index.mq</script>
+	</scripts>
+</package>
