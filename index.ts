@@ -13,10 +13,10 @@ async function runPkgMain(pkg: PkgJSONFile) {
 let pkg: null | PkgJSONFile = null;
 try {
 if(existsSync("pkg.json")) {
-    pkg = parsePkgJSON("pkg.json", "minq-pkg-json.json");
+    pkg = await parsePkgJSON("pkg.json");
 }}
 catch {
-    console.error("MPS ERR: Cannot parse package.json because it`s invaild!");
+    console.error("MPS ERR: Cannot parse pkg.json because it`s invaild!");
     process.exit(-1);
 }
 function checkPkg() {
@@ -61,7 +61,7 @@ yargs.command({
         if (argv.y) {
             const generatedJson = `
 {
-    "$schema": "./minq-pkg-json.json",
+    "$schema": "https://raw.githubusercontent.com/MINQ-Project/mps/main/minq-pkg-json.json",
     "meta": {
         "name": "my-package",
         "version": "v1.0.0",
@@ -125,7 +125,7 @@ writeFileSync("pkg.json", generatedJson)
             
             const generatedJson = `
 {
-    "$schema": "./minq-pkg-json.json",
+    "$schema": "https://raw.githubusercontent.com/MINQ-Project/mps/main/minq-pkg-json.json",
     "meta": {
         "name": "${packageName}",
         "version": "${packageVersion}",

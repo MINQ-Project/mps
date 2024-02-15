@@ -1,6 +1,8 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import Ajv from 'ajv';
-// Definicja interfejsu
+import fetch from 'node-fetch';
+
+// Interface Definition
 export interface PkgJSONFile {
     main: string,
     meta: {
@@ -8,34 +10,33 @@ export interface PkgJSONFile {
         version: string,
         description: string
     },
-    scripts: Map<string, string>   
+    scripts: Map<string, string>
 }
 
-// Funkcja do parsowania JSON
-export function parsePkgJSON(jsonFilePath: string, schemaFilePath: string): PkgJSONFile | null {
-    // Wczytanie pliku JSON
-    const rawData = fs.readFileSync(jsonFilePath);
+export async function parsePkgJSON(jsonFilePath: string): Promise<PkgJSONFile | null> {
+    // Load package.json file
+    const rawData = await fs.readFile(jsonFilePath);
     const jsonData: any = JSON.parse(rawData.toString());
 
-    // Wczytanie schematu JSON
-    const rawSchema = fs.readFileSync(schemaFilePath);
-    const jsonSchema = JSON.parse(rawSchema.toString());
+    // Fetch JSON schema
+    const response = await fetch("https://raw.githubusercontent.com/MINQ-Project/mps/main/minq-pkg-json.json");
+    const jsonSchema = await response.json() as any;
 
-    // Inicjalizacja Ajv i dodanie schematu Draft-04
+    // Ajv initialization
     const ajv = new Ajv();
-    // Walidacja danych JSON za pomocą schematu
+    // JSON Data validation
     const validate = ajv.compile(jsonSchema);
     const valid = validate(jsonData);
 
     if (!valid) {
-        console.error('Invalid JSON data:', validate.errors);
+        console.error('MPS ERR: Invalid JSON data:', validate.errors);
         return null;
     }
 
-    // Przekształcenie danych JSON na interfejs PkgJSONFile
+    // Convert JSON Data to PkgJSONFile
     const result: PkgJSONFile = {
-        main: (jsonData as any).main as string,
-        meta: (jsonData as any).meta as { name: string; version: string; description: string; },
+        main: (jsonData as any).main,
+        meta: (jsonData as any).meta,
         scripts: (jsonData as any).scripts ? new Map(Object.entries((jsonData as any).scripts)) : new Map()
     };
 
