@@ -9,11 +9,16 @@
   "author": "Maciko84",
   "license": "MIT",
   "dependencies": {
+    "ajv": "^8.12.0",
     "fast-xml-parser": "^4.3.4",
     "libxmljs2": "^0.33.0",
-    "ts-node": "^10.9.2"
+    "readline-sync": "^1.4.10",
+    "ts-node": "^10.9.2",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/node": "^20.11.17"
+    "@types/node": "^20.11.17",
+    "@types/readline-sync": "^1.4.8",
+    "@types/yargs": "^17.0.32"
   }
 }
