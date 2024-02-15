@@ -8,17 +8,26 @@ import { existsSync, writeFileSync } from "fs";
 async function runPkgMain(pkg: PkgJSONFile) {
     console.log("> " + pkg?.meta.name + "@" + pkg?.meta.version)
     console.log("> " + pkg?.meta.description.split("\n").join("\n> "));
+    if(!existsSync(pkg?.main as string)) {
+        console.error("MPS ERR: File '" + pkg?.main as string + "' does not exist!");
+        process.exit(-1);
+    }
     runFile(pkg?.main as string);
 }
+(async () => {
 let pkg: null | PkgJSONFile = null;
-try {
-if(existsSync("pkg.json")) {
-    pkg = await parsePkgJSON("pkg.json");
-}}
-catch {
-    console.error("MPS ERR: Cannot parse pkg.json because it`s invaild!");
-    process.exit(-1);
-}
+
+    try {
+        if (existsSync("pkg.json")) {
+            pkg = await parsePkgJSON("pkg.json");
+        }
+    }
+    catch (err) {
+        console.log(err)
+        console.error("MPS ERR: Cannot parse pkg.json because it`s invaild!");
+        process.exit(-1);
+    }
+
 function checkPkg() {
     if (pkg === null) {
         console.error("MPS ERR: " + "pkg.json file not defined in this directory!")
@@ -54,7 +63,7 @@ yargs.command({
         }
     },
     handler(argv) {
-        if(existsSync("pkg.json")) {
+        if (existsSync("pkg.json")) {
             console.error("MPS ERR: Cannot initialize package because pkg.json alredy exists.");
             process.exit(-1);
         }
@@ -73,8 +82,8 @@ yargs.command({
     }
 }
 `;
-console.log(generatedJson);
-writeFileSync("pkg.json", generatedJson)
+            console.log(generatedJson);
+            writeFileSync("pkg.json", generatedJson)
         } else {
             const nameregex = /^(?!mps$|minq$)[a-z\-]+$/
             let packageName: string = "";
@@ -82,47 +91,47 @@ writeFileSync("pkg.json", generatedJson)
                 packageName = prompt({
                     prompt: "Package name (my-package): "
                 }).trim();
-                if(!packageName) {
+                if (!packageName) {
                     packageName = "my-package";
                 }
-                if(!nameregex.test(packageName)) {
+                if (!nameregex.test(packageName)) {
                     console.log("Name is invaild. try again!");
                 }
             }
-            
+
             const versionregex = /v(\d+\.){2}\d+$/
             let packageVersion: string = "";
             while (!versionregex.test(packageVersion)) {
                 packageVersion = prompt({
                     prompt: "Package Version (v1.0.0): "
                 }).trim();
-                if(!packageVersion) {
+                if (!packageVersion) {
                     packageVersion = "v1.0.0";
-                } else if(!versionregex.test(packageVersion)) {
+                } else if (!versionregex.test(packageVersion)) {
                     console.log("Version is invaild. try again!");
                 }
             }
-            
+
             const mainregex = /.*\.(minq|mq)$/i
             let packageMain = "";
             while (!mainregex.test(packageMain)) {
                 packageMain = prompt({
                     prompt: "Package Main File (index.mq): "
                 }).trim();
-                if(!packageMain) {
+                if (!packageMain) {
                     packageMain = "index.mq";
-                } else if(!mainregex.test(packageMain)) {
+                } else if (!mainregex.test(packageMain)) {
                     console.log("Main File is invaild. try again!");
                 }
             }
-            
+
             let packageDescription = prompt({
                 prompt: "Package description (No description provided.): "
             }).trim();
-            if(!packageDescription) {
+            if (!packageDescription) {
                 packageDescription = "No description provided.";
             }
-            
+
             const generatedJson = `
 {
     "$schema": "https://raw.githubusercontent.com/MINQ-Project/mps/main/minq-pkg-json.json",
@@ -155,3 +164,4 @@ yargs.demandCommand(1)
     .recommendCommands()
     .strict()
     .parse();
+})();

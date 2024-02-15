@@ -1,6 +1,6 @@
+import https from 'https';
 import { promises as fs } from 'fs';
 import Ajv from 'ajv';
-import fetch from 'node-fetch';
 
 // Interface Definition
 export interface PkgJSONFile {
@@ -19,13 +19,24 @@ export async function parsePkgJSON(jsonFilePath: string): Promise<PkgJSONFile | 
     const jsonData: any = JSON.parse(rawData.toString());
 
     // Fetch JSON schema
-    const response = await fetch("https://raw.githubusercontent.com/MINQ-Project/mps/main/minq-pkg-json.json");
-    const jsonSchema = await response.json() as any;
+    const jsonSchema: string = await new Promise((resolve, reject) => {
+        https.get("https://raw.githubusercontent.com/MINQ-Project/mps/main/minq-pkg-json.json", (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                resolve(JSON.parse(data));
+            });
+        }).on('error', (err) => {
+            reject(err);
+        });
+    });
 
     // Ajv initialization
     const ajv = new Ajv();
     // JSON Data validation
-    const validate = ajv.compile(jsonSchema);
+    const validate = ajv.compile(jsonSchema as String);
     const valid = validate(jsonData);
 
     if (!valid) {
